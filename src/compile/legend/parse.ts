@@ -23,7 +23,7 @@ import {UnitModel} from '../unit';
 import {LegendComponent, LegendComponentIndex} from './component';
 import * as encode from './encode';
 import * as properties from './properties';
-import {direction} from './properties';
+import {direction, type} from './properties';
 
 export function parseLegend(model: Model) {
   if (isUnitModel(model)) {
@@ -136,6 +136,8 @@ function getProperty<K extends keyof VgLegend>(
   const fieldDef = model.fieldDef(channel);
   const legendConfig = model.config.legend;
 
+  const scaleType = model.getScaleComponent(channel).get('type');
+
   switch (property) {
     case 'format':
       // We don't include temporal field here as we apply format in encode block
@@ -143,8 +145,11 @@ function getProperty<K extends keyof VgLegend>(
     case 'title':
       return fieldDefTitle(fieldDef, model.config, {allowDisabling: true}) || undefined;
 
+    case 'type':
+      return type({legend, channel, timeUnit: model.fieldDef(channel).timeUnit, scaleType, alwaysReturn: false});
+
     case 'direction':
-      return direction({legend, legendConfig, channel, scaleType: model.getScaleComponent(channel).get('type')});
+      return direction({legend, legendConfig, channel, scaleType});
 
     // TODO: enable when https://github.com/vega/vega/issues/1351 is fixed
     // case 'clipHeight':
